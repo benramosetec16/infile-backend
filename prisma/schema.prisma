@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Place {
+  id        String   @id @default(uuid())
+  name      String
+  category  String?
+  createdAt DateTime @default(now())
+  queues    Queue[]
+}
+
+model Queue {
+  id          String   @id @default(uuid())
+  placeId     String
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  place       Place    @relation(fields: [placeId], references: [id])
+  tickets     Ticket[]
+  createdAt   DateTime @default(now())
+}
+
+model Ticket {
+  id            String   @id @default(uuid())
+  queueId       String
+  customerName  String
+  customerPhone String?
+  queueNumber   Int
+  status        String   @default("WAITING") // Posições possíveis: WAITING (Aguardando), CALLED (Chamado), COMPLETED (Finalizado), CANCELLED (Cancelado)
+  queue         Queue    @relation(fields: [queueId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
